@@ -1,4 +1,4 @@
-# Using DSS REST API/Python Mapping ISIN/CUSIP/SEDOL to RIC
+# Search RIC Using DSS REST API/Python  
 
 ## Introduction
 
@@ -196,11 +196,11 @@ To test the example, simply enter the following python command:
 
 The Python script will prompt user to enter the DSS User ID and password then displays the steps of progress to the console:
 
-![MappingResult_1](./RicMapping_1.png)
+![SearchResult_1](./RicSearch_1.png)
 
 When writing the outputto the console, it first writes the header lines with the field names. Follow by the extracted data of each instrument. Finally, display any error returned from the extracted data. The **Mapping Exceptions** list shows two invalid instruments that were added to the instrument file purposely:
      
-![MappingResult_2](./RicMapping_2.png)
+![MappingResult_2](./RicSearch_2.png)
 
 
 ## Disclaimer
