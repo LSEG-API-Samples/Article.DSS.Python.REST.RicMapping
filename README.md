@@ -6,13 +6,13 @@
 A [legacy SOAP-based API](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-soap-api) has been for  a long time but is scheduled to be retired. Therefore clients who still use SOAP-based API may need to migrate their application to use REST API instead.
 
 
-Thomson Reuters TREP system uses **RIC** (Reuters Instrument Code) as standard instrument identifier. However, many applications developped by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with TRAP.  This example demonstrates how to retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with Python script and JSON library. This example applies the steps provided in [DSS REST API tutorial](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/learning?content=6002&type=learning_material_item) section which locates on Developer Portal to implement the Python example.
+Thomson Reuters TREP system uses **RIC** (Reuters Instrument Code) as standard instrument identifier. However, many applications developped by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with TREP.  This example demonstrates how to retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with Python script and JSON library. This example applies the steps provided in [DSS REST API tutorial](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/learning?content=6002&type=learning_material_item) section which locates on Developer Portal to implement the Python example.
 
 
 
 
 ## Solution
-This application implements DSS Rest REST API **On Demand** requests to extract DSS **Terms and Conditions(T&C)** data from DSS server. A list of Instrument codes with the corresponded instrument types are loaded from a plain text file and appended to the **InstrumentIdentifiers** array of the HTTP request body. The request body also defines a **ContentFieldNames** array that contains a list of fields such as RIC and other fields that the application may be interested from the T&C report template. The RIC of the instruments then can be extracted from the HTTP Response data.
+This application implements DSS Rest REST API **On Demand** requests to extract DSS **Terms and Conditions(T&C)** data from DSS server. A list of Instrument codes with the corresponding instrument types are loaded from a plain text file and appended to the **InstrumentIdentifiers** array of the HTTP request body. The request body also defines a **ContentFieldNames** array that contains a list of fields such as RIC and other fields that the application may be interested from the T&C report template. The RIC of the instruments then can be extracted from the HTTP Response data.
 
 The process steps are:
 
@@ -47,7 +47,7 @@ Use a valid DSS user name and password to request an authentication token. The r
          return _jResp["value"] 
 
 ### Step 2 Load the barebone T&C JSON HTTP Request payload from file
-The file **DSS_RicMapping.json** contains a barebone JASON T&C HTTP request body is available in the article download package.:
+The file **DSS_RicMapping.json** contains a barebone JSON T&C HTTP request body is available in the article download package.:
 
 	{
 		"ExtractionRequest": {
@@ -198,7 +198,7 @@ The Python script will prompt user to enter the DSS User ID and password then di
 
 ![SearchResult_1](./RicSearch_1.png)
 
-When writing the outputto the console, it first writes the header lines with the field names. Follow by the extracted data of each instrument. Finally, display any error returned from the extracted data. The **Mapping Exceptions** list shows two invalid instruments that were added to the instrument file purposely:
+When writing the output to the console, it first writes the header lines with the field names. Follow by the extracted data of each instrument. Finally, display any error returned from the extracted data. The **Mapping Exceptions** list shows two invalid instruments that were added to the instrument file purposely:
      
 ![MappingResult_2](./RicSearch_2.png)
 
