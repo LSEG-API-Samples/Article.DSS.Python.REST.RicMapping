@@ -212,7 +212,7 @@ def main():
     except PermissionError as e:
         print(e)
     except Exception as ex:
-        print("Exception occrus:", ex)
+        print("Exception occurred:", ex)
 
 #
 #
