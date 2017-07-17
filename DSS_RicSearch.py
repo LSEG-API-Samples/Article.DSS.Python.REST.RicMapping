@@ -1,4 +1,4 @@
-# See document DSS_10_1_0_REST_API_Programmer_Guide.doc for examples of DSS REST API calls
+#
 #
 #
 from json import dumps, loads, load
@@ -56,7 +56,6 @@ def getAuthToken(username="",password=""):
 #
 #
 #
-#def onDemaonTNCExtractionReq(reqHeader):
 def onDemaonTNCExtractionReq(authToken):
 
     # Step 2
@@ -184,8 +183,6 @@ def loadInstruments():  # Step 3
 def makeExtractHeader( token):
     _header={}
     _header['Prefer']='respond-async, wait=5'
-    #_header['Prefer']='respond-async'
-
     _header['Content-Type']='application/json; odata.metadata=minimal'
     _header['Accept-Charset']='UTF-8'
     _header['Authorization'] = token
