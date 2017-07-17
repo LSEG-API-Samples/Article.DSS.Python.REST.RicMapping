@@ -2,37 +2,67 @@
 
 ## Introduction
 
-[**DataScope Select (DSS)**](https://developers.thomsonreuters.com/datascope-select-dss) is an Internet-hosted product on the DataScope Select platform that provides REST API for unparalleled access to global pricing, validated terms and conditions, historical data content, corporate actions, cross-reference data and entity data.
-A [legacy SOAP-based API](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-soap-api) has been for  a long time but is scheduled to be retired. Therefore clients who still use SOAP-based API may need to migrate their application to use REST API instead.
+Thomson Reuters [**DataScope Select (DSS)**](https://developers.thomsonreuters.com/datascope-select-dss) is an Internet-hosted product that offer  unparalleled access to global pricing, validated terms and conditions, historical data content, corporate actions, cross-reference data and entity data.
+A [legacy SOAP-based API](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-soap-api) has been available for  a long time but is scheduled to be retired. Therefore, clients who still use SOAP-based API will need to migrate their applications to use REST API instead.
 
 
-Thomson Reuters TREP system uses **RIC** (Reuters Instrument Code) as standard instrument identifier. However, many applications developped by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with TREP.  This example demonstrates how to retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with Python script and JSON library. This example applies the steps provided in [DSS REST API tutorial](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/learning?content=6002&type=learning_material_item) section which locates on Developer Portal to implement the Python example.
-
-
+Thomson Reuters Enterprise Platform (**TREP**) system uses Reuters Instrument Code (**RIC**) as standard instrument identifier. However, many applications developed by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with TREP.  This article is to explain how we can retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with **Python** script and **JSON** HTTP requests. 
 
 
 ## Solution
-This application implements DSS Rest REST API **On Demand** requests to extract DSS **Terms and Conditions(T&C)** data from DSS server. A list of Instrument codes with the corresponding instrument types are loaded from a plain text file and appended to the **InstrumentIdentifiers** array of the HTTP request body. The request body also defines a **ContentFieldNames** array that contains a list of fields such as RIC and other fields that the application may be interested from the T&C report template. The RIC of the instruments then can be extracted from the HTTP Response data.
+This example demonstrates how we can take a list of instruments with various types of identifier such as ISIN, SEDOL or CUSIP and extract the RIC of the instruments from DSS. 
+It follows the HTTP request processes illustrated in [REST API Tutorial7: On Demand T&C extraction](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/learning?content=6002&type=learning_material_item) in the Developer Portal and implements them to a Python script.
+
+The input instrument file may contain a list of instruments with several instrument code types like:
+
+	Sedol,2126067
+	Cusip,459200101
+	Isin,JP3633400001
+	Isin,US0378331005
+	Cusip,172967424
+	.
+	.
+	.	
+The script loads the file and appends the instruments to the **InstrumentIdentifiers** array of the HTTP request body.
+
+
+
+
+The JSON request body also defines a **ContentFieldNames** array that contains a list of fields.  The fields can be any field that is available in the **DSS Terms and Conditions (T&C)** report template. In this example, we are requesting fields: "**RIC, CUSIP, ISIN, SEDOL, Company Name, Currency Code**"
+
+ 
 
 The process steps are:
 
 1. Request Authorization Token
-2. Load the barebone T&C JSON HTTP Request payload from file
-3. Load the instrument file to a list
-4. Append each instrument in the list to the **InstrumentIdentifiers** array
-5. **Post** the T&C Request to DSS REST server and check response status
-6. Extract the response message. Display the field values of each instrument to console
+2. Create a bare-bone T&C JSON HTTP Request body by loading the body definitions from file **DSS_RicSearch.json**
+3. Load the instrument file **inst.txt** to the instrument list
+4. Append each instrument in the list to the **InstrumentIdentifiers** array of the Request body
+5. **Post** the T&C JSON HTTP Request to DSS REST server and check response status
+6. Parse the response message. Display the field values of each instrument to the console
 
+When the extraction process is completed,The results, including the RIC column, are written to the console in csv format:
 
+	IdentifierType|Identifier|RIC|CUSIP|ISIN|SEDOL|Company Name|Currency Code
+	Sedol|2126067|TRI.N|884903105|CA8849031056|2126067|ThomsonReuters|USD
+	Cusip|459200101|IBM.N|459200101|US4592001014|2005973|IBM|USD
+	Isin|JP3633400001|7203.T|None|JP3633400001|6900643|Toyota|JPY
+	Isin|US0378331005|AAPL.OQ|037833100|US0378331005|2046251|Apple|USD
+	.
+	.
+	.
 
 ## Solution code
 
 ### Step 1 Request Authorization Token
-Use a valid DSS user name and password to request an authentication token. The received token is required to attach to all following requests to the DSS server.
+Use a valid DSS user name and password to request an authentication token. The received token is required to attach to all following HTTP requests to the DSS server.
 
 
 	_urlAuthToken = 'https://hosted.datascopeapi.reuters.com/RestApi/v1/Authentication/RequestToken'
-       _header= {}
+	.
+	.
+	.	
+    _header= {}
 	_header['Prefer']='respond-async'
     _header['Content-Type']='application/json; odata.metadata=minimal'
     _data={'Credentials':{ 'Password':password,'Username':username } }
@@ -46,8 +76,30 @@ Use a valid DSS user name and password to request an authentication token. The r
          _authToken = _jResp["value"]
          return _jResp["value"] 
 
-### Step 2 Load the barebone T&C JSON HTTP Request payload from file
-The file **DSS_RicMapping.json** contains a barebone JSON T&C HTTP request body is available in the article download package.:
+### Step 2 Create a bare-bone T&C JSON HTTP Request body
+
+The script uses JSON  **load()** function to load the JASON data from file **DSS_RicSearch.json** to the body of the JSON Request object **\_jReqBody** :
+
+	
+	_jsonFileName="DSS_RicSearch.json"
+	.
+	.
+	.
+	# Step 2
+    print(timeNow() + "Loading Extraction request message body")
+    _token = 'Token ' + authToken
+    _jReqBody = {}
+    with open(_jsonFileName, "r") as filehandle:
+		_jReqBody=load( filehandle, object_pairs_hook=OrderedDict )
+        #_jReqBody=load( filehandle )
+		.
+		.
+		.
+
+**Note:** Depending on the version of Python being installed, the JSON load() function may need to add an **object_pairs_hook=OrderedDict** argument to force the JSON object to maintain the order of attributes when sending the HTTP requests.
+
+ 
+The file DSS_RicSearch.json is included in the article's download package. It contains the definitions of a bare-bone JSON terms & Conditions HTTP request body.:
 
 	{
 		"ExtractionRequest": {
@@ -63,7 +115,7 @@ The file **DSS_RicMapping.json** contains a barebone JSON T&C HTTP request body 
 	
 
 
-The **ContentFieldNames** array in the request body contain the fields that will be returned from DSS server. The fields can be any field of defined in the DSS T&C report template but for the purpose of this example, **RIC** must be minimally included in the ContentFieldNames array:
+The **ContentFieldNames** array in the request body contains the fields that are expected to be returned from DSS server. They can be any fields defined in the DSS T&C report template. For the purpose of this demonstration, **RIC** must be minimally included in the ContentFieldNames array:
 
 
 ```
@@ -71,26 +123,23 @@ The **ContentFieldNames** array in the request body contain the fields that will
 ```
 
 
-**InstrumentIdentifiers** is an empty array initially and will be populated when the instruments are loaded from the instrument file in the later step:
+The attribute of the the request body **InstrumentIdentifiers** is an empty array initially when the body was loaded from the file.:
 
 ```
 "InstrumentIdentifiers": []
 ```
 
-	# Step 2
-    print(timeNow() + "Loading Extraction request message body")
-    _token = 'Token ' + authToken
-    _jReqBody = {}
-    with open(_jsonFileName, "r") as filehandle:
-		_jReqBody=load( filehandle, object_pairs_hook=OrderedDict )
-        #_jReqBody=load( filehandle )
+ It will be populated when the instruments are loaded from the instrument file in next step.
 
-**Note:** Depending on the version of Python being installed, the JSON load() function may need to add an **object_pairs_hook=OrderedDict** argument to force JSON to maintain the order of attributes when sending the HTTP requests.
 
 
 ### Step 3 Load the instrument file to a list
-Read the instrument file and append each instrument to the instrument list  . Log as error if the value of IdentifierType is not Isin, Sedol or Cusip.
-
+Read the instrument file and append each instrument to the instrument list  . Log the entry as error if the value of IdentifierType is not Isin, Sedol or Cusip. 
+	
+	_instFilename = "inst.txt"
+	.
+	.
+	.
 
 	identifyTypes = [ 'Isin', 'Sedol', 'Cusip' ]
     
@@ -108,10 +157,10 @@ Read the instrument file and append each instrument to the instrument list  . Lo
                                                   +  ", Identifier: "
                                                   +  _lineElements[1] )
 
-**Note:** The instrument file included in the download source code package contains two entries with invalid identifier type intentionally for testing purpose.  
+**Note:** The sample instrument file **inst.txt** that is included in the article's download package contains two entries with invalid identifier type intentionally for testing purpose.  
 
-### Step 4 Append each instrument to the **InstrumentIdentifiers** array
-Iterate through the instrument list. Append each element of the list as a JSON object to the **InstrumentIdentifiers** of the JSON Request body **\_jReqBody** created in **Step 2** 	
+### Step 4 Append each instrument to the **InstrumentIdentifiers** array of the Request body
+Iterate through the instrument list. Append each instrument to the **InstrumentIdentifiers** array of the JSON Request body **\_jReqBody** created in **Step 2** 	
 
 	for _inst in _instList:
         _jReqBody["ExtractionRequest"]["IdentifierList"]["InstrumentIdentifiers"]
@@ -120,8 +169,8 @@ Iterate through the instrument list. Append each element of the list as a JSON o
 
 
 
-### Step 5 Post the T&C Request to DSS REST server and check response status
-Construct the Extraction request header and **Post** the T&C request to DSS server and poll the request status from DSS server
+### Step 5 Post the T&C HTTP Request to DSS REST server and check response status
+Construct the Extraction request header and **Post** the T&C HTTP request to DSS server.
 
 	_extractReqHeader = makeExtractHeader( authToken )
 	#Step 5 Post the T&C Request to DSS REST server
@@ -150,20 +199,29 @@ Construct the Extraction request header and **Post** the T&C request to DSS serv
 				sleep(_sleepTime) 
 
            
-The normal response status codes should be either 200 or 202. Status **202** indicates the HTTP Request has been accepted by the server. An URL is returned by this response code and application should use the URL to retrieve the data again with the statement:
+The normal response status codes should be either 200 or 202.
 
-	_resp = get( _location, headers=_extractReqHeader )
+* Status **200** indicates the extraction was completed and application can go ahead retrieve data from the body of response message.
 
- Status **200** indicates the request was completed and application can go ahead extract data from the body of response message.
+*  Status **202** indicates the HTTP Request has been accepted by the server but the extraction is not completed yet. In this case, a **"Location"** URL is returned in the response message and application should use the URL to retry periodically:
 
-Other status codes indicate errors and should be logged as error:
+		_location = _resp.headers['Location']
+		.
+		.
+		.
+		_resp = get( _location, headers=_extractReqHeader )
 
-	message="Error: Status Code:" + str(_resp.status_code) + " Message:" + _resp.text
+ 
+
+
+* Other status codes indicate abnormal conditions and should be logged as errors:
+
+		message="Error: Status Code:" + str(_resp.status_code) + " Message:" + _resp.text
 
 
 
 
-### Step 6 Extract the response message. Display the field values of each instrument to console
+### Step 6 Parse the response message. Display the field values of each instrument to the console
 
 * Construct output data header string using the **ContentFieldNames** array of the response message
  
@@ -174,7 +232,7 @@ Other status codes indicate errors and should be logged as error:
 	    	headerStr += "|" + str(_fieldNames[i])
  
 	
-* Iterate through the **value** array of the response body. Construct output string as **csv** file format using the **IdentifierType** and **Identifier** values of each value array elements. If an **Error** attribute presents in a returned instrument, append the instrument to the **\_ricExcepts** list
+* Iterate through the **value** array of the response body. Construct output string in **csv** file format. If an **Error** attribute presents in a returned instrument, append the instrument to the **\_ricExcepts** list
 
 		for i in range(len(_jResp["value"])):
             if 'Error' in _jResp["value"][i]:
@@ -194,11 +252,11 @@ To test the example, simply enter the following python command:
 	
 	python DSS_RicMapping.py
 
-The Python script will prompt user to enter the DSS User ID and password then displays the steps of progress to the console:
+The Python script will prompt user to enter the DSS User ID and password then displays the steps of progress on the console:
 
 ![SearchResult_1](./RicSearch_1.png)
 
-When writing the output to the console, it first writes the header lines with the field names. Follow by the extracted data of each instrument. Finally, display any error returned from the extracted data. The **Mapping Exceptions** list shows two invalid instruments that were added to the instrument file purposely:
+When writing the output to the console, it first writes the list of field names as header. Followed by the data of each instrument. Finally, display any errors returned from the extracted data. The console output shows two invalid instruments that were added to the instrument file purposely:
      
 ![MappingResult_2](./RicSearch_2.png)
 
@@ -206,5 +264,5 @@ When writing the output to the console, it first writes the header lines with th
 ## Disclaimer
 
 
-This Python code in this article is for demonstration purposes only and is not intended to be used in production environment directly. The complete source code of this example can be downloaded from [DSS REST API Download](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/downloads). To execute the Python example code illustrated in this article, a valid TR DataScope Select user account/password is required.
+The Python code in this article is for demonstration purposes only and is not intended to be used in production environment directly. The complete source code of this example can be downloaded from [DSS REST API Download](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/downloads). A valid DataScope Select user account is required to execute the Python example code illustrated in this article, .
   
