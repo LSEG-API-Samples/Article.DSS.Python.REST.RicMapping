@@ -13,8 +13,8 @@ from getpass import GetPassWarning
 
 _userId = ''
 _password = ''
-_urlExtrations = 'https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/Extract'
-_urlAuthToken =  'https://hosted.datascopeapi.reuters.com/RestApi/v1/Authentication/RequestToken'
+_urlExtrations = 'https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/Extract'
+_urlAuthToken =  'https://selectapi.datascope.refinitiv.com/RestApi/v1/Authentication/RequestToken'
 
 _authToken = ''
 _instFilename = ''

@@ -2,16 +2,18 @@
 
 ## Introduction
 
-Thomson Reuters [**DataScope Select (DSS)**](https://developers.thomsonreuters.com/datascope-select-dss) is an Internet-hosted product that offer  unparalleled access to global pricing, validated terms and conditions, historical data content, corporate actions, cross-reference data and entity data.
-A [legacy SOAP-based API](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-soap-api) has been available for  a long time but is scheduled to be retired. Therefore, clients who still use SOAP-based API will need to migrate their applications to use REST API instead.
+**Update**: October 2021
+
+Refinitiv [**DataScope Select (DSS)**](https://developers.refinitiv.com/en/api-catalog/datascope-select/datascope-select-rest-api) is an Internet-hosted product that offer  unparalleled access to global pricing, validated terms and conditions, historical data content, corporate actions, cross-reference data and entity data.
+A legacy SOAP-based API has been available for  a long time but is scheduled to be retired. Therefore, clients who still use SOAP-based API will need to migrate their applications to use REST API instead.
 
 
-Thomson Reuters Enterprise Platform (**TREP**) system uses Reuters Instrument Code (**RIC**) as standard instrument identifier. However, many applications developed by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with TREP.  This article is to explain how we can retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with **Python** script and **JSON** HTTP requests. 
+Refinitiv Real-Time Distribution System  (**RTDS**) system uses Reuters Instrument Code (**RIC**) as standard instrument identifier. However, many applications developed by clients use other types of identifier such as ISIN, SEDOL or CUSIP and need to map those identifiers to RIC when interfacing with RTDS.  This article is to explain how we can retrieve the RIC of an instrument from other instrument types by implementing the DSS REST API with **Python** script and **JSON** HTTP requests. 
 
 
 ## Solution
 This example demonstrates how we can take a list of instruments with various types of identifier such as ISIN, SEDOL or CUSIP and extract the RIC of the instruments from DSS. 
-It follows the HTTP request processes illustrated in [REST API Tutorial7: On Demand T&C extraction](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/learning?content=6002&type=learning_material_item) in the Developer Portal and implements them to a Python script.
+It follows the HTTP request processes illustrated in [REST API Tutorial7: On Demand T&C extraction](https://developers.refinitiv.com/en/api-catalog/datascope-select/datascope-select-rest-api/tutorials#rest-api-tutorial-7-on-demand-t-c-extraction) in the Developer Portal and implements them to a Python script.
 
 The input instrument file may contain a list of instruments with several instrument code types like:
 
@@ -58,7 +60,7 @@ When the extraction process is completed,The results, including the RIC column, 
 Use a valid DSS user name and password to request an authentication token. The received token is required to attach to all following HTTP requests to the DSS server.
 
 
-	_urlAuthToken = 'https://hosted.datascopeapi.reuters.com/RestApi/v1/Authentication/RequestToken'
+	_urlAuthToken = 'https://selectapi.datascope.refinitiv.com/RestApi/v1/Authentication/RequestToken'
 	.
 	.
 	.	
@@ -103,10 +105,10 @@ The file DSS_RicSearch.json is included in the article's download package. It co
 
 	{
 		"ExtractionRequest": {
-            "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.TermsAndConditionsExtractionRequest",
+            "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.TermsAndConditionsExtractionRequest",
             "ContentFieldNames": ["RIC", "CUSIP", "ISIN", "SEDOL", "Company Name", "Currency Code"],
             "IdentifierList": {
-                "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
+                "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
                 "InstrumentIdentifiers": []
             }
         }
@@ -264,5 +266,5 @@ When writing the output to the console, it first writes the list of field names 
 ## Disclaimer
 
 
-The Python code in this article is for demonstration purposes only and is not intended to be used in production environment directly. The complete source code of this example can be downloaded from [DSS REST API Download](https://developers.thomsonreuters.com/datascope-select-dss/datascope-select-rest-api/downloads). A valid DataScope Select user account is required to execute the Python example code illustrated in this article, .
+The Python code in this article is for demonstration purposes only and is not intended to be used in production environment directly. The complete source code of this example can be downloaded from [DSS REST API Download](https://developers.refinitiv.com/en/api-catalog/datascope-select/datascope-select-rest-api/download). A valid DataScope Select user account is required to execute the Python example code illustrated in this article, .
   

@@ -1,9 +1,9 @@
 {
 	"ExtractionRequest": {
-            "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.TermsAndConditionsExtractionRequest",
+            "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.TermsAndConditionsExtractionRequest",
             "ContentFieldNames": ["RIC", "CUSIP", "ISIN", "SEDOL", "Company Name", "Currency Code"],
             "IdentifierList": {
-                "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
+                "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
                 "InstrumentIdentifiers": []
             }
         }
